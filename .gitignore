@@ -1,0 +1,32 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE
+.vs/
+.vscode/
+.history/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# Unity meta cache
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Build artifacts
+*.apk
+*.aab
+*.unitypackage
+
