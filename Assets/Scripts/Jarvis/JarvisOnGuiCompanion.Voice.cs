@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Chimeradroid.Jarvis;
+using UnityEngine;
 
 namespace Chimeradroid
 {
@@ -64,8 +65,7 @@ namespace Chimeradroid
             if (!string.IsNullOrWhiteSpace(resp.SessionId))
             {
                 _sessionId = resp.SessionId;
-                UnityEngine.PlayerPrefs.SetString("jarvis.session_id", _sessionId);
-                UnityEngine.PlayerPrefs.Save();
+                SetPref(PrefKeySessionId, _sessionId);
             }
 
             _lastTurnId = resp.TurnId ?? _lastTurnId;
@@ -80,4 +80,3 @@ namespace Chimeradroid
         }
     }
 }
-

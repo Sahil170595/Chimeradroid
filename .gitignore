@@ -11,6 +11,7 @@
 # IDE
 .vs/
 .vscode/
+.idea/
 .history/
 *.csproj
 *.sln
@@ -19,14 +20,26 @@
 *.pidb
 *.booproj
 *.svd
+*.iml
 
 # Unity meta cache
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
 
+# Secrets
+Assets/Resources/GeminiKey.asset
+Assets/Resources/GeminiKey.asset.meta
+
 # Build artifacts
 *.apk
 *.aab
 *.unitypackage
+*.obb
 
+# Gradle
+.gradle/
+
+# OS
+.DS_Store
+Thumbs.db

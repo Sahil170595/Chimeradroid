@@ -22,7 +22,15 @@ namespace Chimeradroid.Jarvis
                 return "";
             }
 
-            return baseUrl.Trim().TrimEnd('/');
+            var trimmed = baseUrl.Trim().TrimEnd('/');
+
+            if (!trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                && !trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return "";
+            }
+
+            return trimmed;
         }
 
         public static IEnumerator PostJson<TRequest, TResponse>(
@@ -233,10 +241,10 @@ namespace Chimeradroid.Jarvis
             }
             catch
             {
-                body = "";
+                // DownloadHandler may be disposed
             }
 
-            return $"HTTP error: {(long)req.responseCode} {req.error}\n{body}";
+            return $"HTTP {(long)req.responseCode}: {req.error}\n{body}";
         }
 
         private static float ParseRetryAfterSeconds(UnityWebRequest req)
@@ -246,12 +254,12 @@ namespace Chimeradroid.Jarvis
                 var h = req.GetResponseHeader("Retry-After");
                 if (!string.IsNullOrEmpty(h) && int.TryParse(h, out var seconds))
                 {
-                    return Mathf.Clamp(seconds, 0, 30);
+                    return Mathf.Clamp(seconds, 1, 30);
                 }
             }
             catch
             {
-                // ignore
+                // header access can fail on some platforms
             }
 
             return 1f;

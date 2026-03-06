@@ -43,8 +43,9 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.google.xr.embardiment": "1.0.0",
-    "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm"
+    "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#ea014c9ae534d56111962d96f89f8a046e302dc9"
   },
   "scopedRegistries": [
     {

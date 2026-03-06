@@ -17,7 +17,7 @@ namespace Chimeradroid.Jarvis
         private Task _pingTask;
 
         public bool IsConnected => _ws != null && _ws.State == WebSocketState.Open;
-        public string LastError { get; private set; }
+        public volatile string LastError;
 
         public event Action<string> OnRawMessage;
 
@@ -123,7 +123,6 @@ namespace Chimeradroid.Jarvis
         {
             try
             {
-                // NativeWebSocket requires dispatching to pump message callbacks.
                 _ws?.DispatchMessageQueue();
             }
             catch
@@ -141,12 +140,28 @@ namespace Chimeradroid.Jarvis
         {
             try
             {
-                DisconnectAsync(CancellationToken.None).GetAwaiter().GetResult();
+                if (_cts != null && !_cts.IsCancellationRequested)
+                {
+                    _cts.Cancel();
+                }
             }
             catch
             {
                 // ignore
             }
+
+            try
+            {
+                _cts?.Dispose();
+                _cts = null;
+            }
+            catch
+            {
+                // ignore
+            }
+
+            _ws = null;
+            _pingTask = null;
         }
 
         private async Task SendTextAsync(string text, CancellationToken cancellationToken)

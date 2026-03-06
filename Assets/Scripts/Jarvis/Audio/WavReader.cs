@@ -89,12 +89,14 @@ namespace Chimeradroid.Jarvis.Audio
             }
 
             int bytesPerSampleFrame = channels * (bitsPerSample / 8);
-            int sampleFrames = dataSize / bytesPerSampleFrame;
+            int availableBytes = Math.Min(dataSize, wavBytes.Length - dataOffset);
+            int sampleFrames = availableBytes / bytesPerSampleFrame;
             var samples = new float[sampleFrames * channels];
 
             int p = dataOffset;
             int s = 0;
-            for (int i = 0; i < sampleFrames * channels; i++)
+            int end = dataOffset + sampleFrames * bytesPerSampleFrame;
+            for (int i = 0; i < sampleFrames * channels && p + 1 < wavBytes.Length && p < end; i++)
             {
                 short v = (short)(wavBytes[p] | (wavBytes[p + 1] << 8));
                 samples[s++] = v / 32768f;

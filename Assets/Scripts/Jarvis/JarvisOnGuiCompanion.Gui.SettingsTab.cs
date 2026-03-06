@@ -11,11 +11,10 @@ namespace Chimeradroid
             if (GUILayout.Button("Save Base URL"))
             {
                 BaseUrl = Jarvis.JarvisWeb.NormalizeBaseUrl(BaseUrl);
-                PlayerPrefs.SetString(PrefKeyBaseUrl, BaseUrl);
-                PlayerPrefs.Save();
+                SetPref(PrefKeyBaseUrl, BaseUrl);
             }
 
-            if (Application.isMobilePlatform && BaseUrl.Contains("localhost"))
+            if (Application.isMobilePlatform && BaseUrl != null && BaseUrl.Contains("localhost"))
             {
                 GUILayout.Label(
                     "Warning: on device, use your PC LAN IP (e.g. http://192.168.1.10:8400)."
@@ -31,14 +30,12 @@ namespace Chimeradroid
                 : GUILayout.PasswordField(_deviceKey, '*');
             if (GUILayout.Button("Save Device Key"))
             {
-                PlayerPrefs.SetString(PrefKeyDeviceKey, _deviceKey);
-                PlayerPrefs.Save();
+                SetPref(PrefKeyDeviceKey, _deviceKey);
             }
             if (GUILayout.Button("Clear Device Key"))
             {
                 _deviceKey = "";
-                PlayerPrefs.DeleteKey(PrefKeyDeviceKey);
-                PlayerPrefs.Save();
+                DeletePref(PrefKeyDeviceKey);
             }
 
             GUILayout.Space(8);
@@ -47,14 +44,12 @@ namespace Chimeradroid
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save Session"))
             {
-                PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                PlayerPrefs.Save();
+                SetPref(PrefKeySessionId, _sessionId);
             }
             if (GUILayout.Button("New Session"))
             {
                 _sessionId = "";
-                PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                PlayerPrefs.Save();
+                SetPref(PrefKeySessionId, _sessionId);
             }
             GUILayout.EndHorizontal();
 
@@ -63,10 +58,9 @@ namespace Chimeradroid
                 _deviceKey = "";
                 _sessionId = "";
                 BaseUrl = "http://localhost:8400";
-                PlayerPrefs.DeleteKey(PrefKeyBaseUrl);
-                PlayerPrefs.DeleteKey(PrefKeyDeviceKey);
-                PlayerPrefs.DeleteKey(PrefKeySessionId);
-                PlayerPrefs.Save();
+                DeletePref(PrefKeyBaseUrl);
+                DeletePref(PrefKeyDeviceKey);
+                DeletePref(PrefKeySessionId);
             }
 
             GUILayout.Space(8);
@@ -85,8 +79,8 @@ namespace Chimeradroid
             }
 
             GUILayout.Space(10);
-            GUILayout.Label("One-time device registration (uses MASTER key; do not ship):");
 #if UNITY_EDITOR
+            GUILayout.Label("One-time device registration (Editor only):");
             MasterKey = _showSecrets
                 ? GUILayout.TextField(MasterKey)
                 : GUILayout.PasswordField(MasterKey, '*');
@@ -94,7 +88,7 @@ namespace Chimeradroid
             GUILayout.Label("Name", GUILayout.Width(60));
             DeviceName = GUILayout.TextField(DeviceName);
             GUILayout.EndHorizontal();
-            if (GUILayout.Button("Register Device (Editor only)"))
+            if (GUILayout.Button("Register Device"))
             {
                 StartCoroutine(RegisterDevice());
             }
@@ -108,4 +102,3 @@ namespace Chimeradroid
         }
     }
 }
-

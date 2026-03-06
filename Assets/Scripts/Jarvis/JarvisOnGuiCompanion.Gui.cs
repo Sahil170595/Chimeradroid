@@ -9,9 +9,15 @@ namespace Chimeradroid
 
         private void OnGUI()
         {
-            const int pad = 10;
-            const int w = 560;
-            const int h = 820;
+            float dpiScale = Mathf.Max(1f, Screen.dpi / 160f);
+            int pad = (int)(10 * dpiScale);
+            int w = Mathf.Min((int)(560 * dpiScale), Screen.width - pad * 2);
+            int h = Mathf.Min((int)(820 * dpiScale), Screen.height - pad * 2);
+
+            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(dpiScale, dpiScale, 1f));
+            w = (int)(w / dpiScale);
+            h = (int)(h / dpiScale);
+            pad = (int)(pad / dpiScale);
 
             var rect = new Rect(pad, pad, w, h);
             GUI.Box(rect, "JARVIS Companion (Chimeradroid)");
@@ -70,6 +76,7 @@ namespace Chimeradroid
             }
 
             GUILayout.EndArea();
+            GUI.matrix = Matrix4x4.identity;
         }
     }
 }

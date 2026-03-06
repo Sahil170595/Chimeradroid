@@ -12,8 +12,12 @@ namespace Chimeradroid
         private CancellationTokenSource _streamCts;
         private int _lastSeq = 0;
         private float _nextReconnectAt = 0f;
+        private int _reconnectAttempts = 0;
         private bool _autoReconnect = true;
         private string _deltaTurnId;
+
+        private const float ReconnectBaseDelay = 2f;
+        private const float ReconnectMaxDelay = 60f;
 
         private void StartStream()
         {
@@ -48,7 +52,6 @@ namespace Chimeradroid
             }
             else
             {
-                // If someone hands us the HTTP base URL by mistake, normalize to ws/wss.
                 if (wsUrl.StartsWith("https://"))
                 {
                     wsUrl = wsUrl.Replace("https://", "wss://");
@@ -82,6 +85,11 @@ namespace Chimeradroid
             {
                 await _stream.ConnectAsync(wsUrl, hello, cancellationToken, recoverSinceSeq: _lastSeq);
                 _streamStatus = "connected";
+                _reconnectAttempts = 0;
+            }
+            catch (OperationCanceledException)
+            {
+                _streamStatus = "disconnected";
             }
             catch (Exception e)
             {
@@ -91,6 +99,7 @@ namespace Chimeradroid
 
         private void StopStream()
         {
+            _reconnectAttempts = 0;
             try
             {
                 _streamCts?.Cancel();
@@ -100,7 +109,19 @@ namespace Chimeradroid
                 // ignore
             }
             _streamStatus = "disconnecting...";
-            _ = _stream.DisconnectAsync(CancellationToken.None);
+            _ = DisconnectStreamAsync();
+        }
+
+        private async Task DisconnectStreamAsync()
+        {
+            try
+            {
+                await _stream.DisconnectAsync(CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Stream disconnect error: {e.Message}");
+            }
             _streamStatus = "disconnected";
         }
 
@@ -157,8 +178,7 @@ namespace Chimeradroid
                     if (!string.IsNullOrWhiteSpace(sess))
                     {
                         _sessionId = sess;
-                        PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                        PlayerPrefs.Save();
+                        SetPref(PrefKeySessionId, _sessionId);
                     }
                 }
                 else if (t == "tool.approval_required")
@@ -255,12 +275,18 @@ namespace Chimeradroid
                 return;
             }
 
-            if (_streamStatus.StartsWith("connecting"))
+            if (_streamStatus != null && _streamStatus.StartsWith("connecting"))
             {
                 return;
             }
 
-            _nextReconnectAt = Time.realtimeSinceStartup + 5f;
+            _reconnectAttempts++;
+            var delay = Mathf.Min(
+                ReconnectBaseDelay * Mathf.Pow(2f, _reconnectAttempts - 1),
+                ReconnectMaxDelay
+            );
+            _nextReconnectAt = Time.realtimeSinceStartup + delay;
+            _streamStatus = $"reconnecting (attempt {_reconnectAttempts}, next in {delay:F0}s)...";
             StartStream();
         }
     }

@@ -29,7 +29,7 @@ namespace Chimeradroid
                 yield break;
             }
 
-            var url = $"{baseUrl}/jarvis/v2/control-room?limit=50";
+            var url = $"{baseUrl}/jarvis/v2/system/control-room?limit=50";
             ControlRoomResponse resp = null;
             string err = null;
             yield return JarvisWeb.GetJson<ControlRoomResponse>(

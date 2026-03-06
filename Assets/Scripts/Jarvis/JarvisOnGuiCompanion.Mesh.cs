@@ -29,7 +29,7 @@ namespace Chimeradroid
                 yield break;
             }
 
-            var url = $"{baseUrl}/jarvis/v2/whoami";
+            var url = $"{baseUrl}/jarvis/v2/mesh/whoami";
             WhoamiResponse resp = null;
             string err = null;
             yield return JarvisWeb.GetJson<WhoamiResponse>(

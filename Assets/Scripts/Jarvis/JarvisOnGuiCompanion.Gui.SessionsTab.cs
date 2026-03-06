@@ -48,21 +48,18 @@ namespace Chimeradroid
                 if (GUILayout.Button("Use"))
                 {
                     _sessionId = s.SessionId;
-                    PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                    PlayerPrefs.Save();
+                    SetPref(PrefKeySessionId, _sessionId);
                 }
                 if (GUILayout.Button("Timeline"))
                 {
                     _sessionId = s.SessionId;
-                    PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                    PlayerPrefs.Save();
+                    SetPref(PrefKeySessionId, _sessionId);
                     StartCoroutine(LoadTimeline());
                 }
                 if (GUILayout.Button("Stream"))
                 {
                     _sessionId = s.SessionId;
-                    PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-                    PlayerPrefs.Save();
+                    SetPref(PrefKeySessionId, _sessionId);
                     StartStreamWithUrl(s.StreamUrl);
                 }
                 GUILayout.EndHorizontal();
@@ -72,4 +69,3 @@ namespace Chimeradroid
         }
     }
 }
-

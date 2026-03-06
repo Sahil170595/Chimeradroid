@@ -19,7 +19,7 @@ Unity Android client ("body") for your JARVIS AI stack (Banterpacks). A producti
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [API Integration](#api-integration)
-- [Embardiment Integration](#embardiment-integration)
+- [Embardiment Integration](#embardiment-integration-1)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 - [Related Projects](#related-projects)
@@ -657,7 +657,7 @@ See [LICENSE](LICENSE) file for details.
 
 ✅ **Production Ready** - Fully functional JARVIS v2 client
 
-**Last Updated:** January 2025  
+**Last Updated:** March 2026
 **Unity Version:** 6000.0+  
 **Platform:** Android  
 **JARVIS API:** v2

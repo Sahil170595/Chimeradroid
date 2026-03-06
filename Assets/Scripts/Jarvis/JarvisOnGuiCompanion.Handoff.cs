@@ -52,8 +52,7 @@ namespace Chimeradroid
             }
 
             _sessionId = resp.SessionId;
-            PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-            PlayerPrefs.Save();
+            SetPref(PrefKeySessionId, _sessionId);
             _status = "handoff redeemed";
             _lastResponse = $"session_id={resp.SessionId}\nstream_url={resp.StreamUrl}";
         }
@@ -108,6 +107,7 @@ namespace Chimeradroid
 
             foreach (var m in resp.Messages)
             {
+                if (m == null) continue;
                 var ts = string.IsNullOrWhiteSpace(m.CreatedAt) ? "" : $"[{m.CreatedAt}] ";
                 sb.AppendLine($"{ts}{m.Role}: {m.Content}");
             }

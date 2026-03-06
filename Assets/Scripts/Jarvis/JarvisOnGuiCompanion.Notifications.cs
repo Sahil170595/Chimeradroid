@@ -75,20 +75,35 @@ namespace Chimeradroid
             }
 
             var url =
-                $"{baseUrl}/jarvis/v2/notifications/{Uri.EscapeDataString(notificationId)}/mark-read";
+                $"{baseUrl}/jarvis/v2/notifications/{Uri.EscapeDataString(notificationId)}/read";
             _notificationsStatus = "marking read...";
 
-            string okBody = null;
+            object resp = null;
             string err = null;
-            yield return JarvisWeb.PostQuery(
+            yield return JarvisWeb.PatchJson<object, object>(
                 url,
+                new object(),
                 JarvisWeb.DeviceKeyHeader,
                 _deviceKey,
-                body => okBody = body,
+                r => resp = r,
                 e => err = e
             );
 
-            _notificationsStatus = !string.IsNullOrEmpty(err) ? err : (okBody ?? "ok");
+            if (!string.IsNullOrEmpty(err))
+            {
+                _notificationsStatus = err;
+                yield break;
+            }
+
+            _notificationsStatus = "marked read";
+            foreach (var n in _notifications)
+            {
+                if (n != null && n.NotificationId == notificationId)
+                {
+                    n.ReadAt = DateTime.UtcNow.ToString("o");
+                    break;
+                }
+            }
         }
 
         private IEnumerator LoadProactiveStatus()
@@ -201,4 +216,3 @@ namespace Chimeradroid
         }
     }
 }
-

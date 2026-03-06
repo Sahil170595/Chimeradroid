@@ -16,11 +16,13 @@ namespace Chimeradroid
         [Header("Connection")]
         public string BaseUrl = "http://localhost:8400";
 
-        [Tooltip("Do not ship this in a real app. Use it once to register a device key, then remove.")]
+#if UNITY_EDITOR
+        [Tooltip("Editor-only. Used once to register a device key, then discarded at build time.")]
         public string MasterKey = "jarvis-demo-key";
 
         [Header("Device")]
         public string DeviceName = "chimeradroid";
+#endif
 
         [Header("Chat")]
         [TextArea(2, 6)]
@@ -38,6 +40,8 @@ namespace Chimeradroid
 
         private object _tts;
         private object _asr;
+        private bool _asrSearchDone;
+        private bool _ttsSearchDone;
         private JarvisStreamClient _stream;
         private string _streamStatus = "disconnected";
         private AudioSource _audioSource;
@@ -47,6 +51,8 @@ namespace Chimeradroid
 
         private string _toolsStatus = "";
         private bool _chatStreamOnSend = true;
+
+        private bool _prefsDirty;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureLoaded()
@@ -68,7 +74,11 @@ namespace Chimeradroid
             _sessionId = PlayerPrefs.GetString(PrefKeySessionId, "");
             _stream = new JarvisStreamClient();
             _stream.OnRawMessage += OnStreamMessage;
-            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource = GetComponent<AudioSource>();
+            if (_audioSource == null)
+            {
+                _audioSource = gameObject.AddComponent<AudioSource>();
+            }
             _audioSource.playOnAwake = false;
         }
 
@@ -77,27 +87,39 @@ namespace Chimeradroid
             _stream?.Pump();
             StreamTick();
 
-            if (UseAndroidAsrIfPresent && _asr == null)
+            if (UseAndroidAsrIfPresent && _asr == null && !_asrSearchDone)
             {
                 _asr = FindEmbardimentComponent("Google.XR.Embardiment.AndroidAsr");
+                _asrSearchDone = true;
                 if (_asr != null)
                 {
                     var onComplete = _asr.GetType().GetField("OnComplete")?.GetValue(_asr);
-                    var addListener = onComplete?.GetType().GetMethod("AddListener");
-                    UnityAction<string> handler = OnAsrComplete;
-                    addListener?.Invoke(onComplete, new object[] { handler });
+                    if (onComplete != null)
+                    {
+                        var addListener = onComplete.GetType().GetMethod("AddListener");
+                        if (addListener != null)
+                        {
+                            UnityAction<string> handler = OnAsrComplete;
+                            addListener.Invoke(onComplete, new object[] { handler });
+                        }
+                    }
                 }
             }
 
-            if (_tts == null)
+            if (_tts == null && !_ttsSearchDone)
             {
                 _tts = FindEmbardimentComponent("Google.XR.Embardiment.AndroidTts")
                        ?? FindEmbardimentComponent("Google.XR.Embardiment.GeminiTts");
+                _ttsSearchDone = true;
             }
+
+            FlushPrefs();
         }
 
         private void OnDestroy()
         {
+            FlushPrefsImmediate();
+
             try
             {
                 _streamCts?.Cancel();
@@ -111,10 +133,41 @@ namespace Chimeradroid
             _stream?.Dispose();
         }
 
+        private void MarkPrefsDirty()
+        {
+            _prefsDirty = true;
+        }
+
+        private void FlushPrefs()
+        {
+            if (!_prefsDirty) return;
+            _prefsDirty = false;
+            PlayerPrefs.Save();
+        }
+
+        private void FlushPrefsImmediate()
+        {
+            if (!_prefsDirty) return;
+            _prefsDirty = false;
+            PlayerPrefs.Save();
+        }
+
+        private void SetPref(string key, string value)
+        {
+            PlayerPrefs.SetString(key, value);
+            MarkPrefsDirty();
+        }
+
+        private void DeletePref(string key)
+        {
+            PlayerPrefs.DeleteKey(key);
+            MarkPrefsDirty();
+        }
+
         private static object FindEmbardimentComponent(string fullTypeName)
         {
             var t = ResolveType(fullTypeName);
-            return t == null ? null : FindObjectOfType(t, includeInactive: true);
+            return t == null ? null : FindAnyObjectByType(t, FindObjectsInactive.Include);
         }
 
         private static Type ResolveType(string fullTypeName)
@@ -178,6 +231,10 @@ namespace Chimeradroid
 
         private IEnumerator RegisterDevice()
         {
+#if !UNITY_EDITOR
+            _status = "register only available in Editor";
+            yield break;
+#else
             var baseUrl = JarvisWeb.NormalizeBaseUrl(BaseUrl);
             if (string.IsNullOrEmpty(baseUrl))
             {
@@ -208,10 +265,10 @@ namespace Chimeradroid
             }
 
             _deviceKey = resp.DeviceKey;
-            PlayerPrefs.SetString(PrefKeyDeviceKey, _deviceKey);
-            PlayerPrefs.Save();
+            SetPref(PrefKeyDeviceKey, _deviceKey);
             _status = $"registered device: {resp.DeviceId}";
             _lastResponse = $"device_id={resp.DeviceId}\nname={resp.Name}\ncreated_at={resp.CreatedAt}";
+#endif
         }
 
         private IEnumerator SendChat(string text)
@@ -261,8 +318,7 @@ namespace Chimeradroid
 
             _sessionId = resp.SessionId;
             _lastTurnId = resp.TurnId;
-            PlayerPrefs.SetString(PrefKeySessionId, _sessionId);
-            PlayerPrefs.Save();
+            SetPref(PrefKeySessionId, _sessionId);
 
             if (_chatStreamOnSend && !string.IsNullOrEmpty(resp.StreamUrl))
             {
