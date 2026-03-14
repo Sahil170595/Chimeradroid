@@ -51,6 +51,8 @@ namespace Chimeradroid
 
         private string _toolsStatus = "";
         private bool _chatStreamOnSend = true;
+        private CompanionLocalState _companionState;
+        private bool _companionStateDirty;
 
         private bool _prefsDirty;
 
@@ -74,6 +76,7 @@ namespace Chimeradroid
             _sessionId = PlayerPrefs.GetString(PrefKeySessionId, "");
             _stream = new JarvisStreamClient();
             _stream.OnRawMessage += OnStreamMessage;
+            _companionState = JarvisCompanionStateStore.Load();
             _audioSource = GetComponent<AudioSource>();
             if (_audioSource == null)
             {
@@ -114,11 +117,13 @@ namespace Chimeradroid
             }
 
             FlushPrefs();
+            FlushCompanionState();
         }
 
         private void OnDestroy()
         {
             FlushPrefsImmediate();
+            FlushCompanionStateImmediate();
 
             try
             {
@@ -138,6 +143,11 @@ namespace Chimeradroid
             _prefsDirty = true;
         }
 
+        private void MarkCompanionStateDirty()
+        {
+            _companionStateDirty = true;
+        }
+
         private void FlushPrefs()
         {
             if (!_prefsDirty) return;
@@ -145,11 +155,25 @@ namespace Chimeradroid
             PlayerPrefs.Save();
         }
 
+        private void FlushCompanionState()
+        {
+            if (!_companionStateDirty) return;
+            _companionStateDirty = false;
+            JarvisCompanionStateStore.Save(_companionState);
+        }
+
         private void FlushPrefsImmediate()
         {
             if (!_prefsDirty) return;
             _prefsDirty = false;
             PlayerPrefs.Save();
+        }
+
+        private void FlushCompanionStateImmediate()
+        {
+            if (!_companionStateDirty) return;
+            _companionStateDirty = false;
+            JarvisCompanionStateStore.Save(_companionState);
         }
 
         private void SetPref(string key, string value)
