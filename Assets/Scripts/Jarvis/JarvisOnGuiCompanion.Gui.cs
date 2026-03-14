@@ -28,6 +28,7 @@ namespace Chimeradroid
                 new[]
                 {
                     "Chat",
+                    "Workflows",
                     "Sessions",
                     "Voice",
                     "Mesh",
@@ -46,24 +47,27 @@ namespace Chimeradroid
                     RenderChatTab();
                     break;
                 case 1:
-                    RenderSessionsTab();
+                    RenderWorkflowsTab();
                     break;
                 case 2:
-                    RenderVoiceTab();
+                    RenderSessionsTab();
                     break;
                 case 3:
-                    RenderMeshTab();
+                    RenderVoiceTab();
                     break;
                 case 4:
-                    RenderNotificationsTab();
+                    RenderMeshTab();
                     break;
                 case 5:
-                    RenderToolsTab();
+                    RenderNotificationsTab();
                     break;
                 case 6:
-                    RenderHandoffTab();
+                    RenderToolsTab();
                     break;
                 case 7:
+                    RenderHandoffTab();
+                    break;
+                case 8:
                     RenderSettingsTab();
                     break;
             }
@@ -80,4 +84,3 @@ namespace Chimeradroid
         }
     }
 }
-

@@ -28,6 +28,7 @@ namespace Chimeradroid
             _deviceKey = _showSecrets
                 ? GUILayout.TextField(_deviceKey)
                 : GUILayout.PasswordField(_deviceKey, '*');
+            GUILayout.Label($"Device ID: {(_deviceId ?? "")}");
             if (GUILayout.Button("Save Device Key"))
             {
                 SetPref(PrefKeyDeviceKey, _deviceKey);
@@ -56,11 +57,15 @@ namespace Chimeradroid
             if (GUILayout.Button("Wipe Local Settings"))
             {
                 _deviceKey = "";
+                _deviceId = "";
                 _sessionId = "";
                 BaseUrl = "http://localhost:8400";
                 DeletePref(PrefKeyBaseUrl);
                 DeletePref(PrefKeyDeviceKey);
+                DeletePref(PrefKeyDeviceId);
                 DeletePref(PrefKeySessionId);
+                Jarvis.JarvisCompanionStateStore.Delete();
+                _companionState = new Jarvis.CompanionLocalState();
             }
 
             GUILayout.Space(8);
