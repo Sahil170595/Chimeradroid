@@ -98,6 +98,7 @@ namespace Chimeradroid
             _companionState.Workflows = resp.Workflows != null
                 ? resp.Workflows.Where(item => item != null).ToList()
                 : new List<WorkflowContinuation>();
+            _companionState.SyncCursor = resp.NextCursor;
             if (string.IsNullOrWhiteSpace(_companionState.SelectedWorkflowId) && _companionState.Workflows.Count > 0)
             {
                 _companionState.SelectedWorkflowId = _companionState.Workflows[0].WorkflowId;
@@ -297,7 +298,7 @@ namespace Chimeradroid
                     new MobileSyncBatchRequest
                     {
                         Actions = _companionState.QueuedActions.ToArray(),
-                        ClientCursor = null,
+                        ClientCursor = _companionState.SyncCursor,
                     },
                     JarvisWeb.DeviceKeyHeader,
                     _deviceKey,
@@ -333,10 +334,20 @@ namespace Chimeradroid
                         e => captureErr = e
                     );
 
-                    if (string.IsNullOrEmpty(captureErr) && captureResp != null
+                if (string.IsNullOrEmpty(captureErr) && captureResp != null
                         && (captureResp.Status == "attached" || captureResp.Status == "duplicate"))
                     {
                         completedCaptureIds.Add(capture.ArtifactId);
+                        QueueLearningEvent(
+                            capture.WorkflowId,
+                            "capture_attached",
+                            new Dictionary<string, object>
+                            {
+                                { "artifact_id", capture.ArtifactId },
+                                { "artifact_kind", capture.ArtifactKind },
+                                { "retention_class", capture.RetentionClass }
+                            }
+                        );
                     }
                 }
 

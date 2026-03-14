@@ -169,6 +169,7 @@ namespace Chimeradroid.Jarvis
     {
         [JsonProperty("last_sync_at")] public string LastSyncAt;
         [JsonProperty("last_drain_at")] public string LastDrainAt;
+        [JsonProperty("sync_cursor")] public string SyncCursor;
         [JsonProperty("selected_workflow_id")] public string SelectedWorkflowId;
         [JsonProperty("workflows")] public List<WorkflowContinuation> Workflows = new List<WorkflowContinuation>();
         [JsonProperty("queued_actions")] public List<MobileSyncActionRequest> QueuedActions = new List<MobileSyncActionRequest>();

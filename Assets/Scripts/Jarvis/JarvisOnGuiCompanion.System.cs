@@ -42,7 +42,7 @@ namespace Chimeradroid
             if (!string.IsNullOrEmpty(err) || resp == null)
             {
                 _systemStatusStatus = err ?? "status failed";
-                return;
+                yield break;
             }
 
             _systemStatusStatus = resp.Status ?? "unknown";
@@ -77,4 +77,3 @@ namespace Chimeradroid
         }
     }
 }
-

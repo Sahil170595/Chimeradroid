@@ -71,6 +71,7 @@ namespace Chimeradroid
                     {
                         _companionState.SelectedWorkflowId = workflow.WorkflowId;
                         MarkCompanionStateDirty();
+                        StartCoroutine(LoadWorkflowContinuation(workflow.WorkflowId));
                     }
                     GUILayout.EndVertical();
                 }

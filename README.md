@@ -161,14 +161,14 @@ The companion UI is split into maintainable partials:
 
 ### Required
 
-- **Unity Hub** and **Unity 6000.0+**
+- **Unity Hub** and **Unity 6000.3.11f1** verified baseline
 - **Android SDK** (via Unity Hub)
 - **Git** (for UPM Git dependencies)
 - **Banterpacks JARVIS Gateway** running (see [Quick Start](#quick-start))
 
 ### Optional
 
-- **Embardiment** package (for native ASR/TTS)
+- **Embardiment fork via UPM git dependency** (for native ASR/TTS)
 - **Gemini API Key** (for cloud TTS fallback)
 
 ---
