@@ -11,7 +11,10 @@ namespace Chimeradroid
     {
         private string _workflowsStatus = "";
         private float _nextWorkflowDrainAt = 0f;
+        private float _nextWorkflowRefreshAt = 0f;
+        private bool _workflowBootstrapDone = false;
         private const float WorkflowDrainIntervalSeconds = 5f;
+        private const float WorkflowRefreshIntervalSeconds = 15f;
 
         private WorkflowContinuation SelectedWorkflow
         {
@@ -241,6 +244,40 @@ namespace Chimeradroid
 
             _nextWorkflowDrainAt = Time.realtimeSinceStartup + WorkflowDrainIntervalSeconds;
             StartCoroutine(DrainWorkflowQueue());
+        }
+
+        private void MaybeBootstrapWorkflowInbox()
+        {
+            if (_workflowBootstrapDone || string.IsNullOrEmpty(_deviceKey))
+            {
+                return;
+            }
+
+            _workflowBootstrapDone = true;
+            StartCoroutine(RefreshWorkflowInbox());
+        }
+
+        private void MaybeRefreshWorkflowInbox()
+        {
+            if (string.IsNullOrEmpty(_deviceKey))
+            {
+                return;
+            }
+
+            if (Time.realtimeSinceStartup < _nextWorkflowRefreshAt)
+            {
+                return;
+            }
+
+            _nextWorkflowRefreshAt = Time.realtimeSinceStartup + WorkflowRefreshIntervalSeconds;
+            if (!string.IsNullOrWhiteSpace(_companionState?.SelectedWorkflowId))
+            {
+                StartCoroutine(LoadWorkflowContinuation(_companionState.SelectedWorkflowId));
+            }
+            else
+            {
+                StartCoroutine(RefreshWorkflowInbox());
+            }
         }
 
         private IEnumerator DrainWorkflowQueue()

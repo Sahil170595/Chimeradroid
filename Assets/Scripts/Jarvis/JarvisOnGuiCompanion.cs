@@ -121,6 +121,8 @@ namespace Chimeradroid
 
             FlushPrefs();
             FlushCompanionState();
+            MaybeBootstrapWorkflowInbox();
+            MaybeRefreshWorkflowInbox();
             MaybeDrainWorkflowQueue();
         }
 

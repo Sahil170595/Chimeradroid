@@ -246,6 +246,21 @@ namespace Chimeradroid
                         }
                     }
                 }
+                else if (!string.IsNullOrWhiteSpace(t) && t.StartsWith("workflow.", StringComparison.Ordinal))
+                {
+                    var workflowId = (string)(obj["workflow_id"] ?? obj["payload"]?["workflow_id"]);
+                    if (!string.IsNullOrWhiteSpace(workflowId))
+                    {
+                        if (_companionState != null && _companionState.SelectedWorkflowId == workflowId)
+                        {
+                            StartCoroutine(LoadWorkflowContinuation(workflowId));
+                        }
+                        else
+                        {
+                            StartCoroutine(RefreshWorkflowInbox());
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {

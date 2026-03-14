@@ -72,9 +72,10 @@ Chimeradroid is part of a larger ecosystem:
 ┌─────────────────────────────────────────────────────────────┐
 │                    Chimeradroid (Android)                    │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │  JarvisOnGuiCompanion (Unity MonoBehaviour)          │   │
-│  │  ├── Chat Tab (text/voice input)                    │   │
-│  │  ├── Voice Tab (ASR/TTS integration)                 │   │
+  │  │  JarvisOnGuiCompanion (Unity MonoBehaviour)          │   │
+  │  │  ├── Chat Tab (text/voice input)                    │   │
+  │  │  ├── Workflows Tab (workflow-first mobile continuity)│   │
+  │  │  ├── Voice Tab (ASR/TTS integration)                 │   │
 │  │  ├── Sessions Tab (conversation history)             │   │
 │  │  ├── Tools Tab (approval workflows)                 │   │
 │  │  ├── Handoff Tab (session handoff)                  │   │
@@ -132,6 +133,7 @@ Chimeradroid is part of a larger ecosystem:
 - ✅ **Real-time Streaming** - WebSocket-based event streaming for live responses
 - ✅ **Session Management** - Browse, resume, and handoff conversations
 - ✅ **Tool Approvals** - Secure approval workflow for AI tool execution
+- ✅ **Workflow Continuation** - Workflow-first inbox, continuation, mobile actions, and staged captures
 - ✅ **Voice Integration** - Optional Embardiment ASR/TTS for hands-free interaction
 - ✅ **Mesh Networking** - Push/pull events for cross-device visibility
 - ✅ **Proactive Notifications** - Receive AI-driven alerts and suggestions
@@ -144,6 +146,7 @@ The companion UI is split into maintainable partials:
 
 - **`JarvisOnGuiCompanion.Gui.cs`** - Main tabbed UI framework
 - **`JarvisOnGuiCompanion.Gui.ChatTab.cs`** - Chat input/output
+- **`JarvisOnGuiCompanion.Gui.WorkflowsTab.cs`** - Workflow inbox, continuation, and queue UI
 - **`JarvisOnGuiCompanion.Gui.VoiceTab.cs`** - Voice controls
 - **`JarvisOnGuiCompanion.Gui.SessionsTab.cs`** - Session browser
 - **`JarvisOnGuiCompanion.Gui.ToolsTab.cs`** - Tool approval interface
@@ -407,6 +410,15 @@ Chimeradroid integrates with the JARVIS v2 API. All endpoints use device key aut
 - **`POST /jarvis/v2/tools/execute`** - Execute approved tool
   - Request: `{ "tool_run_id": "...", "approval_id": "..." }`
 - **`POST /jarvis/v2/tools/cancel`** - Cancel tool execution
+
+### Workflow Continuity API
+
+- **`GET /jarvis/v2/mobile/workflows/inbox`** - List workflow inbox items
+- **`GET /jarvis/v2/mobile/workflows/{workflow_id}/continuation`** - Fetch workflow continuation payload
+- **`POST /jarvis/v2/mobile/workflows/{workflow_id}/actions`** - Submit one idempotent workflow action
+- **`POST /jarvis/v2/mobile/workflows/{workflow_id}/captures`** - Attach workflow-native capture metadata
+- **`POST /jarvis/v2/mobile/sync/batch`** - Drain local queued actions in batch
+- **`POST /jarvis/v2/learning/events`** - Emit normalized workflow/mobile learning events
 
 ### Voice Pipeline
 
