@@ -11,6 +11,7 @@ namespace Chimeradroid
     {
         private const string PrefKeyBaseUrl = "jarvis.base_url";
         private const string PrefKeyDeviceKey = "jarvis.device_key";
+        private const string PrefKeyDeviceId = "jarvis.device_id";
         private const string PrefKeySessionId = "jarvis.session_id";
 
         [Header("Connection")]
@@ -32,6 +33,7 @@ namespace Chimeradroid
         public bool UseAndroidAsrIfPresent = true;
 
         private string _deviceKey;
+        private string _deviceId;
         private string _sessionId;
         private string _lastTurnId;
         private string _status = "idle";
@@ -73,6 +75,7 @@ namespace Chimeradroid
         {
             BaseUrl = PlayerPrefs.GetString(PrefKeyBaseUrl, BaseUrl);
             _deviceKey = PlayerPrefs.GetString(PrefKeyDeviceKey, "");
+            _deviceId = PlayerPrefs.GetString(PrefKeyDeviceId, "");
             _sessionId = PlayerPrefs.GetString(PrefKeySessionId, "");
             _stream = new JarvisStreamClient();
             _stream.OnRawMessage += OnStreamMessage;
@@ -118,6 +121,7 @@ namespace Chimeradroid
 
             FlushPrefs();
             FlushCompanionState();
+            MaybeDrainWorkflowQueue();
         }
 
         private void OnDestroy()
@@ -289,7 +293,9 @@ namespace Chimeradroid
             }
 
             _deviceKey = resp.DeviceKey;
+            _deviceId = resp.DeviceId;
             SetPref(PrefKeyDeviceKey, _deviceKey);
+            SetPref(PrefKeyDeviceId, _deviceId);
             _status = $"registered device: {resp.DeviceId}";
             _lastResponse = $"device_id={resp.DeviceId}\nname={resp.Name}\ncreated_at={resp.CreatedAt}";
 #endif
